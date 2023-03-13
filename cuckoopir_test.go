@@ -127,12 +127,23 @@ func TestCuckooPIR(t *testing.T){
 		// ShowTable(c)
 	}
 	fmt.Printf("Length of buckets is: %v\n", len(c.buckets))
-	fmt.Println("LoadFactor:", c.LoadFactor())
 	ShowTable(c)
+	fmt.Println("LoadFactor:", c.LoadFactor())
 
 	fmt.Println("Creating a table...")
-	
-
+	Tables := []*Matrix{}
+	for t := 0; t < len(c.buckets); t += tabLen {
+		T := MatrixNew(uint64(tabLen), uint64(blen))
+		for i := t; i < tabLen; i++ {
+			for j := 0; j < blen; j++ {
+				T.Set(uint64(c.buckets[i].vals[j]), uint64(i), uint64(j))
+			}
+		}
+		Tables = append(Tables, T)
+	}
+	for j := 0; j < len(Tables); j++ {
+		Tables[j].Print()
+	}
 }
 
 func TestMatrix(t *testing.T){

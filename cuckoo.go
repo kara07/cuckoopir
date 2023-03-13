@@ -107,12 +107,15 @@ func defaultHash(k Key, seed hash) hash {
 }
 
 func (c *Cuckoo) dohash(key Key, h *[nhash]hash) {
-	mask := hash((1 << uint(c.logsize)) - 1)
+	mask := hash(tabLen - 1)
+	// mask := hash((1 << uint(c.logsize)) - 1)//backing
 	// fmt.Println("mask in dohash:", mask)
 
 	for i := range h {
-		h[i] = defaultHash(key, c.seed[i]) & mask
-		// fmt.Printf("h[%v] in dohash: %v\n", i, h[i])
+		hashing := defaultHash(key, c.seed[i])
+		fmt.Printf("hashing in dohash: %v, mask is: %v\n", hashing, mask)
+		h[i] = defaultHash(key, c.seed[i]) & mask + hash(i * tabLen)
+		fmt.Printf("h[%v] in dohash: %v\n", i, h[i])
 	}
 
 	return
