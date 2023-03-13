@@ -1,0 +1,30 @@
+DB elems: 1048576 elems per entry: 1 entries per elem: 1
+Total packed DB size is ~1152.000000 MB
+Executing CuckooPIR
+Number of 5 queries at once: [3 1145 14 1919 810]
+Setup...
+A: 32768 x 1024
+AT: 1024 x 32768
+DB.Data: 32768 x 32768
+M: 1024 x 32768
+	Elapsed: 4m15.247175945s
+		Offline download: 131072.000000 KB
+Building query...
+A: 32768 x 1024
+S: 1024 x 5
+Q: 32768 x 5
+	Elapsed: 429.210768ms
+		Online upload: 640.000000 KB
+Responsing query...
+Q: 32768 x 5
+QT: 5 x 32768
+R: 5 x 32768
+	Elapsed: 1.144670944s
+	Rate: 5032.013812 MB/s
+		Online download: 640.000000 KB
+Extracting...
+V: 5 x 32768
+	Elapsed: 43.657598ms
+Success!
+PASS
+ok  	cuckoopir	396.120s
