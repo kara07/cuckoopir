@@ -23,7 +23,7 @@ func TestPIR(t *testing.T) {
 	// Row_length uint64 // number of bits per DB entry.
 	pir := CuckooPIR{}
 	// p := pir.PickParams(N, d, SEC_PARAM, LOGQ)//return Params
-	p := Params{1024,6.4,1<<10,1<<8,32,512}//return Params
+	p := Params{1024,6.4,1<<15,1<<15,32,512}//return Params
 	// p := Params{1024,6.4,1<<16,1<<14,32,512}//return Params
 	// p := Params{1024,6.4,5120,1024,32,991}//return Params
 	// type Params struct {
@@ -132,15 +132,21 @@ func TestCuckooPIR(t *testing.T){
 
 	fmt.Println("Creating a table...")
 	Tables := []*Matrix{}
+	T := MatrixNew(uint64(tabLen), uint64(blen))
+
 	for t := 0; t < len(c.buckets); t += tabLen {
-		T := MatrixNew(uint64(tabLen), uint64(blen))
-		for i := t; i < tabLen; i++ {
+		// fmt.Println("t:", t)
+		for i := t; i < t + tabLen; i++ {
+			// fmt.Println("i:", i)
 			for j := 0; j < blen; j++ {
-				T.Set(uint64(c.buckets[i].vals[j]), uint64(i), uint64(j))
+				T.Set(uint64(c.buckets[i].vals[j]), uint64(i - t), uint64(j))
 			}
 		}
+		// T.Print()
 		Tables = append(Tables, T)
+		T = MatrixNew(uint64(tabLen), uint64(blen))
 	}
+	// print Tables
 	for j := 0; j < len(Tables); j++ {
 		Tables[j].Print()
 	}

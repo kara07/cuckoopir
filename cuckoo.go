@@ -113,9 +113,9 @@ func (c *Cuckoo) dohash(key Key, h *[nhash]hash) {
 
 	for i := range h {
 		hashing := defaultHash(key, c.seed[i])
-		fmt.Printf("hashing in dohash: %v, mask is: %v\n", hashing, mask)
-		h[i] = defaultHash(key, c.seed[i]) & mask + hash(i * tabLen)
-		fmt.Printf("h[%v] in dohash: %v\n", i, h[i])
+		// fmt.Printf("hashing in dohash: %v, mask is: %v\n", hashing, mask)
+		h[i] = hashing & mask + hash(i * tabLen)
+		// fmt.Printf("h[%v] in dohash: %v\n", i, h[i])
 	}
 
 	return
@@ -245,12 +245,12 @@ func (c *Cuckoo) Insert(k Key, v Value) {
 func (c *Cuckoo) tryInsert(k Key, v Value) (inserted bool) {
 	var h [nhash]hash
 	c.dohash(k, &h)
-	fmt.Println("h:", h)
+	fmt.Println("hash indexes:", h)
 
 
 	// Are we just updating the value for an existing key?
 	updated, freeSlot, ibucket, index := c.tryUpdate(k, v, &h)
-	fmt.Println("updated:", updated, "freeSlot:", freeSlot, "ibucket:", ibucket, "index:", index)
+	// fmt.Println("updated:", updated, "freeSlot:", freeSlot, "ibucket:", ibucket, "index:", index)
 	if updated {
 		return true
 	}

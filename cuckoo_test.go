@@ -10,7 +10,7 @@ import (
 )
 
 // var n = int(2e6) // close enough to a power of 2, to test whether the LoadFactor is close to 1 or not.
-var n = int(1<<4)
+var n = int(1<<5)
 
 var (
 	gkeys	[]Key
