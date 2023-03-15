@@ -4,6 +4,7 @@ package cuckoopir
 // #include "pir.h"
 import "C"
 import "fmt"
+// import "sync"
 
 type CuckooPIR struct{}
 

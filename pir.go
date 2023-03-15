@@ -7,6 +7,7 @@ import (
 	"runtime/debug"
 	_ "runtime/pprof"
 	"time"
+	"sync"
 //	"math"
 )
 
@@ -47,7 +48,8 @@ type PIR interface {
 }
 
 // Run full PIR scheme (offline + online phases).
-func RunPIR(pi PIR, DB *Database, p Params, rows []uint64) (float64, float64) {
+// func RunPIR(pi PIR, DB *Database, p Params, rows []uint64) (float64, float64) {
+func RunPIR(pi PIR, DB *Database, p Params, rows []uint64,wg *sync.WaitGroup) (float64, float64) {
 	fmt.Printf("Executing %s\n", pi.Name())
 	//fmt.Printf("Memory limit: %d\n", debug.SetMemoryLimit(math.MaxInt64))
 	// debug.SetGCPercent(-1)
@@ -114,6 +116,8 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64) (float64, float64) {
 
 	runtime.GC()
 	debug.SetGCPercent(100)
+	// 
+	wg.Done()
 	return rate, bw
 }
 

@@ -10,6 +10,7 @@ import (
 	_ "strings"
 	"reflect"
 	"runtime"
+	"sync"
 )
 
 
@@ -18,9 +19,9 @@ const SEC_PARAM = uint64(1 << 10)
 
 
 func TestPIR(t *testing.T) {
-	// fmt.Println("Number of CPUs:", runtime.NumCPU())
+	fmt.Println("Number of CPUs:", runtime.NumCPU())
 
-    // runtime.GOMAXPROCS(runtime.NumCPU())
+    runtime.GOMAXPROCS(runtime.NumCPU())
 
 	N := uint64(1 << 20)
 	// Num        uint64 // number of DB entries.
@@ -28,7 +29,7 @@ func TestPIR(t *testing.T) {
 	// Row_length uint64 // number of bits per DB entry.
 	pir := CuckooPIR{}
 	// p := pir.PickParams(N, d, SEC_PARAM, LOGQ)//return Params
-	p := Params{1024,6.4,1<<15,1<<15,32,512}//return Params
+	p := Params{1024,6.4,1<<14,1<<14,32,512}//return Params
 	// p := Params{1024,6.4,1<<16,1<<14,32,512}//return Params
 	// p := Params{1024,6.4,5120,1024,32,991}//return Params
 	// type Params struct {
@@ -53,8 +54,13 @@ func TestPIR(t *testing.T) {
 	// 	Data []C.Elem		//typedef uint32_t Elem;
 	// }
 	// fmt.Println(*DB.Data)
-
-	RunPIR(&pir, DB, p, []uint64{11,45,14,19,19,810})
+	var wg sync.WaitGroup
+	wg.Add(8)
+	for i := 0; i < 8; i++ {
+		go RunPIR(&pir, DB, p, []uint64{11,45,14,19,19,810},&wg)
+	}
+	wg.Wait()
+	fmt.Println("Done")
 }
 
 func TestCuckoo(t *testing.T) {
