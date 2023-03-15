@@ -9,6 +9,7 @@ import (
 	"testing"
 	_ "strings"
 	"reflect"
+	"runtime"
 )
 
 
@@ -17,6 +18,10 @@ const SEC_PARAM = uint64(1 << 10)
 
 
 func TestPIR(t *testing.T) {
+	// fmt.Println("Number of CPUs:", runtime.NumCPU())
+
+    // runtime.GOMAXPROCS(runtime.NumCPU())
+
 	N := uint64(1 << 20)
 	// Num        uint64 // number of DB entries.
 	d := uint64(8)
