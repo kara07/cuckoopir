@@ -11,6 +11,8 @@ import (
 	"reflect"
 	"runtime"
 	"sync"
+	"math/rand"
+	"time"
 )
 
 
@@ -198,4 +200,25 @@ func TestInt(t *testing.T){
 	slice := []uint64{3,2}
 	rows := RandomMatrix.SelectSparseRows(slice)
 	rows.Print()
+}
+
+func TestMulAdd(t *testing.T){
+
+	rand.Seed(time.Now().UnixNano())
+	const numMultiplications = 9999999
+	// results := make([]int, numMultiplications)
+
+	c := 0
+	for i := 0; i < numMultiplications; i++ {
+		a := rand.Intn(1<<32)
+		b := rand.Intn(1<<32)
+		c = a + b
+		fmt.Println(c)
+	}
+
+	// 输出结果
+	// for i, result := range results {
+	// 	fmt.Printf("第 %d 次乘法的结果是: %d\n", i+1, result)
+	// }
+
 }
