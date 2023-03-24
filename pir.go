@@ -59,8 +59,8 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64, wg *sync.WaitGroup) (
 	bw := float64(0)
 
 	// Print database
-	fmt.Printf("Database: ")
-	DB.Data.Print()
+	// fmt.Printf("Database: ")
+	// DB.Data.Print()
 
 	// derive *Matrix A as State.Data[0]
 	shared_state := pi.Init(DB.Info, p)
@@ -103,12 +103,20 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64, wg *sync.WaitGroup) (
 
 	printTime(start)
 
+	// Recover to [-p/2, p/2] and verify
 	expectedRows := DB.Data.SelectSparseRows(rows)
 	for i, v := range V.Data {
-		if v != expectedRows.Data[i]{
-			fmt.Printf("Expected result: %d, %d\n",i, expectedRows.Data[i])
-			fmt.Printf("Actual result: %d, %d\n",i, v)
-			// panic("Result Failure!")
+		if uint64(expectedRows.Data[i]) <= p.P/2 {
+			if v != expectedRows.Data[i]{
+				fmt.Printf("Expected result: %d, %d\n",i, expectedRows.Data[i])
+				fmt.Printf("Actual result: %d, %d\n",i, v)
+				// panic("Result Failure!")
+			}
+		}else{
+			if uint32(v) != uint32(expectedRows.Data[i]) + uint32(p.P){
+				fmt.Printf("Expected result: %d, %d\n",i, uint32(expectedRows.Data[i]) + uint32(p.P))
+				fmt.Printf("Actual result: %d, %d\n",i, v)
+			}
 		}
 	}
 	fmt.Println("Success!")

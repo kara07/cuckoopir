@@ -31,7 +31,7 @@ func TestPIR(t *testing.T) {
 	// Row_length uint64 // number of bits per DB entry.
 	pir := CuckooPIR{}
 	// p := pir.PickParams(N, d, SEC_PARAM, LOGQ)//return Params
-	p := Params{1024,6.4,1<<10,1<<10,32,512}//return Params
+	p := Params{1024,6.4,1<<10,1<<10,32,256}//return Params
 	// p := Params{1024,6.4,1<<16,1<<14,32,512}//return Params
 	// p := Params{1024,6.4,5120,1024,32,991}//return Params
 	// type Params struct {
@@ -59,7 +59,8 @@ func TestPIR(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	for i := 0; i < 1; i++ {
-		go RunPIR(&pir, DB, p, []uint64{11,45,14,19,19,810},&wg)
+		// go RunPIR(&pir, DB, p, []uint64{1,2,3},&wg)
+		go RunPIR(&pir, DB, p, []uint64{11,45,14,19,19,8,10},&wg)
 	}
 	wg.Wait()
 	fmt.Println("Done")
