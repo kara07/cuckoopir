@@ -137,6 +137,7 @@ func MakeRandomDB(Num, row_length uint64, p *Params) *Database {
 
 	// Map DB elems to [-p/2; p/2]
 	// D.Data.Sub(p.P / 2)
+	D.Data.Sub(p.P / 2)
 
 	return D
 }

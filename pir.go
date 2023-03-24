@@ -49,7 +49,7 @@ type PIR interface {
 
 // Run full PIR scheme (offline + online phases).
 // func RunPIR(pi PIR, DB *Database, p Params, rows []uint64) (float64, float64) {
-func RunPIR(pi PIR, DB *Database, p Params, rows []uint64,wg *sync.WaitGroup) (float64, float64) {
+func RunPIR(pi PIR, DB *Database, p Params, rows []uint64, wg *sync.WaitGroup) (float64, float64) {
 	fmt.Printf("Executing %s\n", pi.Name())
 	//fmt.Printf("Memory limit: %d\n", debug.SetMemoryLimit(math.MaxInt64))
 	// debug.SetGCPercent(-1)
@@ -59,8 +59,8 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64,wg *sync.WaitGroup) (f
 	bw := float64(0)
 
 	// Print database
-	// fmt.Printf("Database: ")
-	// DB.Data.Print()
+	fmt.Printf("Database: ")
+	DB.Data.Print()
 
 	// derive *Matrix A as State.Data[0]
 	shared_state := pi.Init(DB.Info, p)

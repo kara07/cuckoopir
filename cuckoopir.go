@@ -53,6 +53,7 @@ func (pi *CuckooPIR) Query(L []uint64, A *Matrix, p Params, info DBinfo) (*Matri
 	Q.MatrixAdd(E)
 	// col := i % DB.Data.Cols
 	// row := i / DB.Data.Cols
+	// add delta
 	for i, j := range L {
 		index := uint64(j-1) * Q.Cols + uint64(i)
 		Q.Data[index] += C.Elem(p.Delta())
@@ -86,13 +87,12 @@ func (pi *CuckooPIR) Extract(M *Matrix, R *Matrix, S *Matrix, p Params, info DBi
 	S.Transpose()
 	Mhat := MatrixMul(S, M)
 	R.MatrixSub(Mhat)
+
 	// Recover each Z_p element that makes up the desired database entry
-	
 	R.Round(p)
 	V := R
 	fmt.Println("V:", V.Rows, "x", V.Cols)
 
-	//fmt.Printf("Reconstructing row %d: %d\n", j, denoised)
 
 	return V
 }
