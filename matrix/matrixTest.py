@@ -1,6 +1,7 @@
 import numpy as np
 import time
 
+
 N = 8192
 A = np.random.rand(N, N)
 B = np.random.rand(N, N)
