@@ -9,7 +9,7 @@ import (
 	"testing"
 	_ "strings"
 	"reflect"
-	"runtime"
+	_ "runtime"
 	"sync"
 	"math/rand"
 	"time"
@@ -19,11 +19,15 @@ import (
 const LOGQ = uint64(32)
 const SEC_PARAM = uint64(1 << 10)
 
+var rows = []uint64{1,2,3}
+// var rows = []uint64{11,45,14,19,19,8,10}
+var ell uint64 = uint64(len(rows))
+
 
 func TestPIR(t *testing.T) {
-	fmt.Println("Number of CPUs:", runtime.NumCPU())
+	// fmt.Println("Number of CPUs:", runtime.NumCPU())
 
-    runtime.GOMAXPROCS(runtime.NumCPU())
+    // runtime.GOMAXPROCS(runtime.NumCPU())
 
 	N := uint64(1 << 20)
 	// Num        uint64 // number of DB entries.
@@ -31,7 +35,7 @@ func TestPIR(t *testing.T) {
 	// Row_length uint64 // number of bits per DB entry.
 	pir := CuckooPIR{}
 	// p := pir.PickParams(N, d, SEC_PARAM, LOGQ)//return Params
-	p := Params{1024,6.4,1<<10,1<<10,32,256}//return Params
+	p := Params{1<<10,6.4,1<<12,1<<12,32,1<<8}//return Params
 	// p := Params{1024,6.4,1<<16,1<<14,32,512}//return Params
 	// p := Params{1024,6.4,5120,1024,32,991}//return Params
 	// type Params struct {
@@ -56,11 +60,12 @@ func TestPIR(t *testing.T) {
 	// 	Data []C.Elem		//typedef uint32_t Elem;
 	// }
 	// fmt.Println(*DB.Data)
+
 	var wg sync.WaitGroup
 	wg.Add(1)
 	for i := 0; i < 1; i++ {
 		// go RunPIR(&pir, DB, p, []uint64{1,2,3},&wg)
-		go RunPIR(&pir, DB, p, []uint64{11,45,14,19,19,8,10},&wg)
+		go RunPIR(&pir, DB, p, rows, &wg)
 	}
 	wg.Wait()
 	fmt.Println("Done")
@@ -166,14 +171,6 @@ func TestCuckooPIR(t *testing.T){
 	}
 }
 
-func TestMatrix(t *testing.T){
-
-	// a := 3
-	// ptr := &a
-	// fmt.Println(ptr)
-	fmt.Println(MatrixMul(Atest,Btest))
-	// outpyt: missing type in composite literal
-}
 
 func TestInt(t *testing.T){
 	// N := uint64(1 << 20)
@@ -216,10 +213,5 @@ func TestMulAdd(t *testing.T){
 		c = a + b
 		fmt.Println(c)
 	}
-
-	// 输出结果
-	// for i, result := range results {
-	// 	fmt.Printf("第 %d 次乘法的结果是: %d\n", i+1, result)
-	// }
 
 }

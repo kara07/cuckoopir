@@ -1,7 +1,8 @@
 package cuckoopir
 
-// #cgo CFLAGS: -O3 -march=native
-// #include "pir.h"
+// #cgo CFLAGS: -O3 -march=native -fopenmp
+// #cgo LDFLAGS: -fopenmp
+// #include "matrix_multiply.h"
 import "C"
 import "fmt"
 // import "sync"
@@ -16,10 +17,10 @@ func (pi *CuckooPIR) GetBW(info DBinfo, p Params) {
 	offline_download := float64(p.M*p.N*p.Logq) / (8.0 * 1024.0)
 	fmt.Printf("\t\tOffline download: %d KB\n", uint64(offline_download))
 
-	online_upload := float64(p.M*p.Logq) / (8.0 * 1024.0)
+	online_upload := float64(p.M*p.Logq*ell) / (8.0 * 1024.0)
 	fmt.Printf("\t\tOnline upload: %d KB\n", uint64(online_upload))
 
-	online_download := float64(p.M*p.Logq) / (8.0 * 1024.0)
+	online_download := float64(p.T*p.Logq*ell) / (8.0 * 1024.0)
 	fmt.Printf("\t\tOnline download: %d KB\n", uint64(online_download))
 }
 
@@ -28,15 +29,11 @@ func (pi *CuckooPIR) Init(info DBinfo, p Params) *Matrix {
 	return A
 }
 
-
 func (pi *CuckooPIR) Setup(DB *Database, A *Matrix, p Params) *Matrix {
-	AT := A.TransposeCopy()
 	fmt.Println("A:", A.Rows, "x", A.Cols)
-	fmt.Println("AT:", AT.Rows, "x", AT.Cols)
 	fmt.Println("DB.Data:", DB.Data.Rows, "x", DB.Data.Cols)
 	
-	// M := MatrixMul(DB.Data, A)
-	M := MatrixMul(AT, DB.Data)
+	M := MatrixTransMul(A, DB.Data)
 	fmt.Println("M:", M.Rows, "x", M.Cols)
 	
 	return M
@@ -45,7 +42,8 @@ func (pi *CuckooPIR) Setup(DB *Database, A *Matrix, p Params) *Matrix {
 func (pi *CuckooPIR) Query(L []uint64, A *Matrix, p Params, info DBinfo) (*Matrix, *Matrix) {
 	fmt.Println("A:", A.Rows, "x", A.Cols)
 
-	S := MatrixRand(p.N, uint64(len(L)), p.Logq, 0)
+	S := MatrixRand(p.N, uint64(len(L)), 1, 0)
+	S.Print()
 	fmt.Println("S:", S.Rows, "x", S.Cols)
 
 	Q := MatrixMul(A, S)//type *Matrix
@@ -71,11 +69,7 @@ func (pi *CuckooPIR) Query(L []uint64, A *Matrix, p Params, info DBinfo) (*Matri
 
 func (pi *CuckooPIR) Response(DB *Database, Q *Matrix, shared *Matrix, p Params) *Matrix {
 	fmt.Println("Q:", Q.Rows, "x", Q.Cols)
-
-	QT := Q.TransposeCopy()
-	fmt.Println("QT:", QT.Rows, "x", QT.Cols)
-
-	R := MatrixMul(QT,DB.Data)
+	R := MatrixTransMul(Q,DB.Data)
 	fmt.Println("R:", R.Rows, "x", R.Cols)
 
 	return R
@@ -84,8 +78,7 @@ func (pi *CuckooPIR) Response(DB *Database, Q *Matrix, shared *Matrix, p Params)
 func (pi *CuckooPIR) Extract(M *Matrix, R *Matrix, S *Matrix, p Params, info DBinfo) *Matrix {
 
 	// col := i % p.M
-	S.Transpose()
-	Mhat := MatrixMul(S, M)
+	Mhat := MatrixTransMul(S, M)
 	R.MatrixSub(Mhat)
 
 	// Recover each Z_p element that makes up the desired database entry

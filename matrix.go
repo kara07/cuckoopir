@@ -1,7 +1,8 @@
 package cuckoopir
 
-// #cgo CFLAGS: -O3 -march=native
-// #include "pir.h"
+// #cgo CFLAGS: -O3 -march=native -fopenmp
+// #cgo LDFLAGS: -fopenmp
+// #include "matrix_multiply.h"
 import "C"
 import "fmt"
 import "math/big"
@@ -12,8 +13,11 @@ type Matrix struct {
 	Data []C.Elem		//typedef uint32_t Elem;
 }
 
-var Atest = &Matrix{3,2,[]C.Elem{1,2,3,4,5,6}}
-var Btest = &Matrix{2,3,[]C.Elem{1,2,3,4,5,6}}
+type MatrixP struct {
+	Rows uint64
+	Cols uint64
+	Data []uint8
+}
 
 func (m *Matrix) Size() uint64 {
 	return m.Rows * m.Cols
@@ -74,6 +78,16 @@ func (m *Matrix) ReduceMod(p uint64) {
 }
 
 func (m *Matrix) Get(i, j uint64) uint64 {
+	if i >= m.Rows {
+		panic("Too many rows!")
+	}
+	if j >= m.Cols {
+		panic("Too many cols!")
+	}
+	return uint64(m.Data[i*m.Cols+j])
+}
+
+func (m *MatrixP) Get(i, j uint64) uint64 {
 	if i >= m.Rows {
 		panic("Too many rows!")
 	}
@@ -178,6 +192,27 @@ func MatrixMulVec(a *Matrix, b *Matrix) *Matrix {
 
 	return out
 }
+
+func MatrixTransMul(a *Matrix, b *Matrix) *Matrix {
+	// if a.Rows != b.Rows {
+	// 	fmt.Printf("%d-by-%d vs. %d-by-%d\n", a.Rows, a.Cols, b.Rows, b.Cols)
+	// 	panic("Dimension mismatch")
+	// }
+
+	out := MatrixZeros(a.Cols, b.Cols)
+
+	outPtr := (*C.Elem)(&out.Data[0])
+	aPtr := (*C.Elem)(&a.Data[0])
+	bPtr := (*C.Elem)(&b.Data[0])
+	aRows := C.size_t(a.Rows)
+	aCols := C.size_t(a.Cols)
+	bCols := C.size_t(b.Cols)
+
+	C.matTransMul(outPtr, aPtr, bPtr, aRows, aCols, bCols)
+
+	return out
+}
+
 
 func (m *Matrix) Transpose() {
 	if m.Cols == 1 {
