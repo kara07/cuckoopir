@@ -24,30 +24,30 @@ type DBinfo struct {
 
 type Database struct {
 	Info DBinfo
-	Data *MatrixP
+	Data *Matrix
 }
 
-// func (DB *Database) Squish() {
-// 	//fmt.Printf("Original DB dims: ")
-// 	//DB.Data.Dim()
+func (DB *Database) Squish() {
+	//fmt.Printf("Original DB dims: ")
+	//DB.Data.Dim()
 
-// 	DB.Info.Basis = 10
-// 	DB.Info.Squishing = 3 
-// 	DB.Info.Cols = DB.Data.Cols
-// 	DB.Data.Squish(DB.Info.Basis, DB.Info.Squishing)
+	DB.Info.Basis = 10
+	DB.Info.Squishing = 3 
+	DB.Info.Cols = DB.Data.Cols
+	DB.Data.Squish(DB.Info.Basis, DB.Info.Squishing)
 
-// 	//fmt.Printf("After squishing, with compression factor %d: ", DB.Info.Squishing)
-// 	//DB.Data.Dim()
+	//fmt.Printf("After squishing, with compression factor %d: ", DB.Info.Squishing)
+	//DB.Data.Dim()
 
-// 	// Check that params allow for this compression
-// 	if (DB.Info.P > (1 << DB.Info.Basis)) || (DB.Info.Logq < DB.Info.Basis * DB.Info.Squishing) {
-// 		panic("Bad params")
-// 	}
-// }
+	// Check that params allow for this compression
+	if (DB.Info.P > (1 << DB.Info.Basis)) || (DB.Info.Logq < DB.Info.Basis * DB.Info.Squishing) {
+		panic("Bad params")
+	}
+}
 
-// func (DB *Database) Unsquish() {
-// 	DB.Data.Unsquish(DB.Info.Basis, DB.Info.Squishing, DB.Info.Cols)
-// }
+func (DB *Database) Unsquish() {
+	DB.Data.Unsquish(DB.Info.Basis, DB.Info.Squishing, DB.Info.Cols)
+}
 
 // Store the database with entries decomposed into Z_p elements, and mapped to [-p/2, p/2]
 // Z_p elements that encode the same database entry are stacked vertically below each other.

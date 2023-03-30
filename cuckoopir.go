@@ -43,7 +43,7 @@ func (pi *CuckooPIR) Query(L []uint64, A *Matrix, p Params, info DBinfo) (*Matri
 	fmt.Println("A:", A.Rows, "x", A.Cols)
 
 	S := MatrixRand(p.N, uint64(len(L)), 1, 0)
-	S.Print()
+	// S.Print()
 	fmt.Println("S:", S.Rows, "x", S.Cols)
 
 	Q := MatrixMul(A, S)//type *Matrix

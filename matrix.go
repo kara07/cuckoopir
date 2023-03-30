@@ -13,12 +13,6 @@ type Matrix struct {
 	Data []C.Elem		//typedef uint32_t Elem;
 }
 
-type MatrixP struct {
-	Rows uint64
-	Cols uint64
-	Data []uint8
-}
-
 func (m *Matrix) Size() uint64 {
 	return m.Rows * m.Cols
 }
@@ -78,16 +72,6 @@ func (m *Matrix) ReduceMod(p uint64) {
 }
 
 func (m *Matrix) Get(i, j uint64) uint64 {
-	if i >= m.Rows {
-		panic("Too many rows!")
-	}
-	if j >= m.Cols {
-		panic("Too many cols!")
-	}
-	return uint64(m.Data[i*m.Cols+j])
-}
-
-func (m *MatrixP) Get(i, j uint64) uint64 {
 	if i >= m.Rows {
 		panic("Too many rows!")
 	}

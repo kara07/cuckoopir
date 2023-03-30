@@ -38,28 +38,8 @@ func TestPIR(t *testing.T) {
 	p := Params{1<<10,6.4,1<<12,1<<12,32,1<<8}//return Params
 	// p := Params{1024,6.4,1<<16,1<<14,32,512}//return Params
 	// p := Params{1024,6.4,5120,1024,32,991}//return Params
-	// type Params struct {
-	// 	N     uint64  // LWE secret dimension
-	// 	Sigma float64 // LWE error distribution stddev
-	
-	// 	M uint64 // DB height
-	// 	T uint64 // DB width
-	
-	// 	Logq uint64 // (logarithm of) ciphertext modulus
-	// 	P    uint64 // plaintext modulus
-	// }
 
 	DB := MakeRandomDB(N, d, &p)//return *Database
-	// type Database struct {
-	// 	Info DBinfo
-	// 	Data *Matrix
-	// }
-	// type Matrix struct {
-	// 	Rows uint64
-	// 	Cols uint64
-	// 	Data []C.Elem		//typedef uint32_t Elem;
-	// }
-	// fmt.Println(*DB.Data)
 
 	var wg sync.WaitGroup
 	wg.Add(1)
