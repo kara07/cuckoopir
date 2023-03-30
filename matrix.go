@@ -1,11 +1,11 @@
 package cuckoopir
 
-// #cgo CFLAGS: -O3 -march=native -fopenmp
-// #cgo LDFLAGS: -fopenmp
+// #cgo CFLAGS: -O3 -march=native
 // #include "matrix_multiply.h"
 import "C"
 import "fmt"
 import "math/big"
+
 
 type Matrix struct {
 	Rows uint64

@@ -1,11 +1,7 @@
-#ifndef MATRIX_MULTIPLY_H
-#define MATRIX_MULTIPLY_H
-
 #include <stdint.h>
 #include <stddef.h>
 
-// typedef uint32_t Elem;
-typedef int32_t Elem;
+typedef uint32_t Elem;
 
 void transpose(Elem *out, const Elem *in, size_t rows, size_t cols);
 
@@ -17,5 +13,3 @@ void matMulVec(Elem *out, const Elem *a, const Elem *b,
 
 void matTransMul(Elem *out, const Elem *a, const Elem *b,
     size_t aRows, size_t aCols, size_t bCols);
-
-#endif // MATRIX_MULTIPLY_H

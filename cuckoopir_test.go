@@ -35,9 +35,9 @@ func TestPIR(t *testing.T) {
 	// Row_length uint64 // number of bits per DB entry.
 	pir := CuckooPIR{}
 	// p := pir.PickParams(N, d, SEC_PARAM, LOGQ)//return Params
+	// p := Params{1<<2,6.4,1<<2,1<<3,32,1<<8}//toy example
 	p := Params{1<<10,6.4,1<<12,1<<12,32,1<<8}//return Params
-	// p := Params{1024,6.4,1<<16,1<<14,32,512}//return Params
-	// p := Params{1024,6.4,5120,1024,32,991}//return Params
+	// p := Params{1<<10,6.4,1<<12,1<<12,32,1<<8}//return Params
 
 	DB := MakeRandomDB(N, d, &p)//return *Database
 

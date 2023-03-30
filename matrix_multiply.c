@@ -1,6 +1,5 @@
 #include "matrix_multiply.h"
 #include <stdio.h>
-// #include <cblas.h>
 
 void matMul(Elem *out, const Elem *a, const Elem *b,
             size_t aRows, size_t aCols, size_t bCols){

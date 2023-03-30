@@ -1,5 +1,8 @@
 package cuckoopir
 
+// #cgo CFLAGS: -O3 -march=native
+// #include "matrix_multiply.h"
+import "C"
 import (
 	"fmt"
 	_ "os"
@@ -8,7 +11,6 @@ import (
 	_ "runtime/pprof"
 	"time"
 	"sync"
-//	"math"
 )
 
 // Defines the interface for PIR with preprocessing schemes
@@ -59,8 +61,8 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64, wg *sync.WaitGroup) (
 	bw := float64(0)
 
 	// Print database
-	// fmt.Printf("Database: ")
-	// DB.Data.Print()
+	fmt.Printf("Database: ")
+	DB.Data.Print()
 
 	// derive *Matrix A as State.Data[0]
 	shared_state := pi.Init(DB.Info, p)
@@ -105,20 +107,28 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64, wg *sync.WaitGroup) (
 
 	// Recover to [-p/2, p/2] and verify
 	expectedRows := DB.Data.SelectSparseRows(rows)
-	for i, v := range V.Data {
+	for i, _:= range V.Data {
 		if uint64(expectedRows.Data[i]) <= p.P/2 {
-			if v != expectedRows.Data[i]{
+			if V.Data[i] != expectedRows.Data[i]{
 				fmt.Printf("Expected result: %d, %d\n",i, expectedRows.Data[i])
-				fmt.Printf("Actual result: %d, %d\n",i, v)
+				fmt.Printf("Actual result: %d, %d\n",i, V.Data[i])
 				panic("Result Failure!")
 			}
 		}else{
-			if uint32(v) != uint32(expectedRows.Data[i]) + uint32(p.P){
-				fmt.Printf("Expected result: %d, %d\n",i, uint32(expectedRows.Data[i]) + uint32(p.P))
-				fmt.Printf("Actual result: %d, %d\n",i, v)
+			V.Data[i] -= C.Elem(p.P)
+			if V.Data[i] != expectedRows.Data[i]{
+				fmt.Printf("Expected result: %d, %d\n",i, expectedRows.Data[i])
+				fmt.Printf("Actual result: %d, %d\n",i, V.Data[i])
+				panic("Result Failure!")
 			}
+			// if uint32(v) != uint32(expectedRows.Data[i]) + uint32(p.P){
+			// 	fmt.Printf("Expected result: %d, %d\n",i, uint32(expectedRows.Data[i]) + uint32(p.P))
+			// 	fmt.Printf("Actual result: %d, %d\n",i, v)
+			// }
 		}
 	}
+	fmt.Println("Extracted: ")
+	V.Print()
 	fmt.Println("Success!")
 	
 
