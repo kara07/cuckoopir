@@ -246,25 +246,26 @@ func (c *Cuckoo) Insert(k Key, v Value) {
 	for {
 		if c.tryInsert(k, v) {
 			return
+			runtime.GC()
 		}
 
-		i0 := 1
-		if c.LoadFactor() < rehashThreshold {
-			i0 = 0
-		}
+		// i0 := 1
+		// if c.LoadFactor() < rehashThreshold {
+		// 	i0 = 0
+		// }
 
-		for i := i0; ; i++ {
-			if ok := c.tryGrow(i); ok {
-				break
-			}
-		}
+		// for i := i0; ; i++ {
+		// 	if ok := c.tryGrow(i); ok {
+		// 		break
+		// 	}
+		// }
 	}
 }
 
 func (c *Cuckoo) tryInsert(k Key, v Value) (inserted bool) {
 	var h [nhash]hash
 	c.dohash(k, &h)
-	fmt.Println("hash indexes:", h)
+	// fmt.Println("hash indexes:", h)
 
 
 	// Are we just updating the value for an existing key?
@@ -439,6 +440,7 @@ func (c *Cuckoo) tryGrow(δ int) (ok bool) {
 	if cnew.logsize > hashBits {
 		panic("cuckoo: cannot grow any furher")
 	}
+	// fmt.Println("alloc bucket size", 1 << uint(cnew.logsize))
 	cnew.buckets = alloc(1 << uint(cnew.logsize))
 
 	// rehash everything; we get better load factors at the expense of CPU time.

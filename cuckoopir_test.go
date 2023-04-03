@@ -13,6 +13,8 @@ import (
 	"sync"
 	"math/rand"
 	"time"
+	"runtime"
+	_ "runtime/debug"
 )
 
 
@@ -113,16 +115,26 @@ func TestCuckoo(t *testing.T) {
 }
 
 func TestCuckooPIR(t *testing.T){
-	fmt.Println("gmap:", gmap)
+	fmt.Println("len of gmap:", len(gmap))
+	fmt.Println("gmap", gmap)
 	c := NewCuckoo(DefaultLogSize)
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
 	
 	fmt.Printf("Number of items in a bucket is: %v\n", 1<<bshift)
 	fmt.Printf("Number of hash functions is: %v\n", nhash)
 	fmt.Printf("Initial length of buckets is: %v\n", len(c.buckets))
+	fmt.Println("memory: ", m.TotalAlloc)
+
 
 	fmt.Println("Inserting items...")
 	for k, v := range gmap {
 		c.Insert(k, v)
+		// fmt.Println("TotalAlloc: ", m.TotalAlloc)
+		// fmt.Printf("HeapAlloc : %v\n", m.HeapAlloc)
+		// fmt.Println(readAlloc())
+		// debug.SetGCPercent(100)
+		// runtime.GC()
 		// ShowTable(c)
 	}
 	fmt.Printf("Length of buckets is: %v\n", len(c.buckets))

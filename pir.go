@@ -81,8 +81,9 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64, wg *sync.WaitGroup) (
 	indexes_to_query := rows
 	client_state, query := pi.Query(indexes_to_query, shared_state, p, DB.Info)
 		
-	runtime.GC()
 	printTime(start)
+	runtime.GC()
+
 	comm = float64(query.Size() * uint64(p.Logq) / (8.0 * 1024.0))
 	fmt.Printf("\t\tOnline upload: %f KB\n", comm)
 	bw += comm
@@ -100,9 +101,7 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64, wg *sync.WaitGroup) (
 
 	fmt.Println("Extracting...")
 	start = time.Now()
-
 	V := pi.Extract(offline_download, response, client_state, p, DB.Info)
-
 	printTime(start)
 
 	// Recover to [-p/2, p/2] and verify

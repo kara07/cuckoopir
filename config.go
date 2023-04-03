@@ -29,7 +29,7 @@ const (
 
 // other configurable variables
 const (
-	gc             = false      // trigger GC after every alloc (which happens during grow).
+	gc             = true      // trigger GC after every alloc (which happens during grow).
 	// DefaultLogSize = 8 + bshift // A reasonable logsize value for NewCuckoo for use when the number of items to be inserted is not known ahead.
 	DefaultLogSize = 3 + bshift	// minimum number of buckets
 )
