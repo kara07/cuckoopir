@@ -145,7 +145,7 @@ func TestCuckooPIR(t *testing.T){
 		Tables = append(Tables, T)
 		T = MatrixNew(uint64(tabLen), uint64(blen))
 	}
-	// print Tables
+	// print Tables of the hash function number
 	for j := 0; j < len(Tables); j++ {
 		Tables[j].Print()
 	}

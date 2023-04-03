@@ -1,3 +1,22 @@
+// Copyright (c) 2014-2015 Utkan Güngördü <utkan@freeconsole.org>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+// Package cuckoo implements d-ary bucketized cuckoo hashing with stash (bucketized cuckoo hashing is also known as splash tables).
+// This implementation uses configurable number of hash functions and cells per bucket.
+// Greedy algorithm for collision resolution is a random walk.
+
 package cuckoopir
 
 import (

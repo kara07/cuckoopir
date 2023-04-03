@@ -62,7 +62,7 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64, wg *sync.WaitGroup) (
 
 	// Print database
 	fmt.Printf("Database: ")
-	DB.Data.Print()
+	// DB.Data.Print()
 
 	// derive *Matrix A as State.Data[0]
 	shared_state := pi.Init(DB.Info, p)
@@ -128,7 +128,7 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64, wg *sync.WaitGroup) (
 		}
 	}
 	fmt.Println("Extracted: ")
-	V.Print()
+	// V.Print()
 	fmt.Println("Success!")
 	
 
