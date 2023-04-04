@@ -142,37 +142,47 @@ func MakeRandomDB(Num, row_length uint64, p *Params) *Database {
 	return D
 }
 
-func MakeDB(Num, row_length uint64, p *Params, vals []uint64) *Database {
+// func MakeDB(Num, row_length uint64, p *Params, vals []uint64) *Database {
+// 	D := SetupDB(Num, row_length, p)
+// 	D.Data = MatrixZeros(p.M, p.T)
+
+// 	if uint64(len(vals)) != Num {
+// 		panic("Bad input DB")
+// 	}
+
+// 	if D.Info.Packing > 0 {
+// 		// Pack multiple DB elems into each Z_p elem
+// 		at := uint64(0)
+// 		cur := uint64(0)
+// 		coeff := uint64(1)
+// 		for i, elem := range vals {
+// 			cur += (elem * coeff)
+// 			coeff *= (1 << row_length)
+// 			if ((i+1)%int(D.Info.Packing) == 0) || (i == len(vals)-1) {
+// 				D.Data.Set(cur, at/p.M, at%p.M)
+// 				at += 1
+// 				cur = 0
+// 				coeff = 1
+// 			}
+// 		}
+// 	} else {
+// 		// Use multiple Z_p elems to represent each DB elem
+// 		for i, elem := range vals {
+// 			for j := uint64(0); j < D.Info.Ne; j++ {
+// 				D.Data.Set(Base_p(D.Info.P, elem, j), (uint64(i)/p.M)*D.Info.Ne+j, uint64(i)%p.M)
+// 			}
+// 		}
+// 	}
+
+// 	// Map DB elems to [-p/2; p/2]
+// 	D.Data.Sub(p.P / 2)
+
+// 	return D
+// }
+
+func MakeDBFromMat(Num, row_length uint64, p *Params, mat *Matrix) *Database {
 	D := SetupDB(Num, row_length, p)
-	D.Data = MatrixZeros(p.M, p.T)
-
-	if uint64(len(vals)) != Num {
-		panic("Bad input DB")
-	}
-
-	if D.Info.Packing > 0 {
-		// Pack multiple DB elems into each Z_p elem
-		at := uint64(0)
-		cur := uint64(0)
-		coeff := uint64(1)
-		for i, elem := range vals {
-			cur += (elem * coeff)
-			coeff *= (1 << row_length)
-			if ((i+1)%int(D.Info.Packing) == 0) || (i == len(vals)-1) {
-				D.Data.Set(cur, at/p.M, at%p.M)
-				at += 1
-				cur = 0
-				coeff = 1
-			}
-		}
-	} else {
-		// Use multiple Z_p elems to represent each DB elem
-		for i, elem := range vals {
-			for j := uint64(0); j < D.Info.Ne; j++ {
-				D.Data.Set(Base_p(D.Info.P, elem, j), (uint64(i)/p.M)*D.Info.Ne+j, uint64(i)%p.M)
-			}
-		}
-	}
+	D.Data = mat
 
 	// Map DB elems to [-p/2; p/2]
 	D.Data.Sub(p.P / 2)

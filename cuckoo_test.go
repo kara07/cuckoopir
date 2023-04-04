@@ -25,14 +25,14 @@ import (
 )
 
 // var n = int(2e6) // close enough to a power of 2, to test whether the LoadFactor is close to 1 or not.
-var n = int(1<<6)
+var n = int(1<<10)
 
 var (
 	gkeys	[]Key
 	gvals   []Value
 	gmap    map[Key]Value
 	logsize	= int(math.Ceil(math.Log2(float64(n))))
-	tabLen	= (1 << (uint(DefaultLogSize)- bshift)) / nhash
+	tablen	= (1 << (uint(DefaultLogSize)- bshift)) / nhash
 )
 
 var (
@@ -70,7 +70,7 @@ func mkmap(n int) (map[Key]Value, []Key, []Value, uint64) {
 
 	after := readAlloc()
 
-	fmt.Println("m, keys, vals, after - before", m, keys, vals, after - before)
+	// fmt.Println("m, keys, vals, after - before", m, keys, vals, after - before)
 	return m, keys, vals, after - before
 }
 

@@ -1,13 +1,8 @@
 package cuckoopir
 
 import (
-	_ "encoding/csv"
 	"fmt"
-	_ "math"
-	_ "os"
-	_ "strconv"
 	"testing"
-	_ "strings"
 	"reflect"
 	_ "runtime"
 	"sync"
@@ -31,7 +26,7 @@ func TestPIR(t *testing.T) {
 
     // runtime.GOMAXPROCS(runtime.NumCPU())
 
-	N := uint64(1 << 20)
+	N := uint64(1 << 24)
 	// Num        uint64 // number of DB entries.
 	d := uint64(8)
 	// Row_length uint64 // number of bits per DB entry.
@@ -115,52 +110,59 @@ func TestCuckoo(t *testing.T) {
 }
 
 func TestCuckooPIR(t *testing.T){
-	fmt.Println("len of gmap:", len(gmap))
-	fmt.Println("gmap", gmap)
+	fmt.Printf("Totally %v items by %v hash functions, %v items in a bucket, %v buckets.\n", len(gmap), nhash, blen, tablen * nhash)
+	// fmt.Println("Items to be inserted: ", gmap)
 	c := NewCuckoo(DefaultLogSize)
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
-	
-	fmt.Printf("Number of items in a bucket is: %v\n", 1<<bshift)
-	fmt.Printf("Number of hash functions is: %v\n", nhash)
-	fmt.Printf("Initial length of buckets is: %v\n", len(c.buckets))
-	fmt.Println("memory: ", m.TotalAlloc)
 
-
+	start := time.Now()
 	fmt.Println("Inserting items...")
 	for k, v := range gmap {
 		c.Insert(k, v)
-		// fmt.Println("TotalAlloc: ", m.TotalAlloc)
-		// fmt.Printf("HeapAlloc : %v\n", m.HeapAlloc)
-		// fmt.Println(readAlloc())
-		// debug.SetGCPercent(100)
-		// runtime.GC()
-		// ShowTable(c)
 	}
-	fmt.Printf("Length of buckets is: %v\n", len(c.buckets))
+	printTime(start)
 	ShowTable(c)
 	fmt.Println("LoadFactor:", c.LoadFactor())
 
 	fmt.Println("Creating a table...")
-	Tables := []*Matrix{}
-	T := MatrixNew(uint64(tabLen), uint64(blen))
+	TabMat := [nhash]*Matrix{}
+	T := MatrixNew(uint64(tablen), uint64(blen))
 
-	for t := 0; t < len(c.buckets); t += tabLen {
-		// fmt.Println("t:", t)
-		for i := t; i < t + tabLen; i++ {
-			// fmt.Println("i:", i)
+	k := 0
+	for t := 0; t < len(c.buckets); t += tablen {
+		for i := t; i < t + tablen; i++ {
 			for j := 0; j < blen; j++ {
 				T.Set(uint64(c.buckets[i].vals[j]), uint64(i - t), uint64(j))
 			}
 		}
-		// T.Print()
-		Tables = append(Tables, T)
-		T = MatrixNew(uint64(tabLen), uint64(blen))
+		TabMat[k] = T
+		k += 1
+		T = MatrixNew(uint64(tablen), uint64(blen))
 	}
-	// print Tables of the hash function number
-	for j := 0; j < len(Tables); j++ {
-		Tables[j].Print()
+
+	// print nhash tables
+	// fmt.Println(len(TabMat))
+	// for j := 0; j < len(TabMat); j++ {
+	// 	TabMat[j].Print()
+	// }
+
+	// run CuckooPIR for Tables[]
+	N := uint64(tablen * blen)
+	d := uint64(8)
+	pir := CuckooPIR{}
+	p := Params{1<<10,6.4,uint64(tablen),blen,32,1<<8}
+
+	var Tables [nhash]*Database
+	var wg sync.WaitGroup
+	wg.Add(nhash)
+	for i := 0; i < nhash; i++ {
+		Tables[i] = MakeDBFromMat(N, d, &p, TabMat[i])
+		// Tables[i].Data.Print()
+		go RunPIR(&pir, Tables[i], p, rows, &wg)
 	}
+	wg.Wait()
+	fmt.Println("Done")
 }
 
 

@@ -104,7 +104,6 @@ func NewCuckoo(logsize int) *Cuckoo {
 	}
 
 	c.reseed()
-	fmt.Println("logsize in c:", logsize)
 
 	return c
 }
@@ -126,14 +125,14 @@ func defaultHash(k Key, seed hash) hash {
 }
 
 func (c *Cuckoo) dohash(key Key, h *[nhash]hash) {
-	mask := hash(tabLen - 1)
+	mask := hash(tablen - 1)
 	// mask := hash((1 << uint(c.logsize)) - 1)//backing
 	// fmt.Println("mask in dohash:", mask)
 
 	for i := range h {
 		hashing := defaultHash(key, c.seed[i])
 		// fmt.Printf("hashing in dohash: %v, mask is: %v\n", hashing, mask)
-		h[i] = hashing & mask + hash(i * tabLen)
+		h[i] = hashing & mask + hash(i * tablen)
 		// fmt.Printf("h[%v] in dohash: %v\n", i, h[i])
 	}
 
@@ -246,7 +245,7 @@ func (c *Cuckoo) Insert(k Key, v Value) {
 	for {
 		if c.tryInsert(k, v) {
 			return
-			runtime.GC()
+			// runtime.GC()
 		}
 
 		// i0 := 1
