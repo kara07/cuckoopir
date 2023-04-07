@@ -166,47 +166,75 @@ func TestCuckooPIRUint8(t *testing.T){
 	fmt.Println("Done")
 }
 
+// cuckooPIR for arbitray item, i.e., byte[] key with byte[] value
+func TestCuckooPIR(t *testing.T){
+	fmt.Printf("Totally %v items by %v hash functions, %v items in a bucket, %v buckets.\n", len(gmap), nhash, blen, tablen * nhash)
+	// fmt.Println("Items to be inserted: ", gmap)
+	c := NewCuckoo(DefaultLogSize)
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
 
-func TestInt(t *testing.T){
-	// N := uint64(1 << 20)
-	// Num        uint64 // number of DB entries.
-	// d := uint64(8)
-	// Row_length uint64 // number of bits per DB entry.
-	p := Params{1024,6.4,4,2,32,991}//return Params
-	a := uint32(1)
-	fmt.Println(a-2)
-	RandomMatrix := MatrixRand(4,2,0,991)
-	RandomMatrix.Print()
+	start := time.Now()
+	fmt.Println("Inserting items...")
+	for k, v := range gmap {
+		c.Insert(k, v)
+	}
+	printTime(start)
+	ShowTable(c)
+	fmt.Println("LoadFactor:", c.LoadFactor())
 
-	RandomMatrix.Sub(p.P / 2)
-	RandomMatrix.Print()
+	fmt.Println("Creating a table...")
+	TabMat := [nhash]*Matrix{}
+	T := MatrixNew(uint64(tablen), uint64(blen))
 
-	// RandomDB := MakeRandomDB(N, d, &p)
-	// RandomDB.Data.Print()
-
-	Rows := RandomMatrix.SelectRows(0,2)
-	Rows.Print()
-
-	row := RandomMatrix.SelectRow(2)
-	row.Print()
-
-	slice := []uint64{3,2}
-	rows := RandomMatrix.SelectSparseRows(slice)
-	rows.Print()
-}
-
-func TestMulAdd(t *testing.T){
-
-	rand.Seed(time.Now().UnixNano())
-	const numMultiplications = 9999999
-	// results := make([]int, numMultiplications)
-
-	c := 0
-	for i := 0; i < numMultiplications; i++ {
-		a := rand.Intn(1<<32)
-		b := rand.Intn(1<<32)
-		c = a + b
-		fmt.Println(c)
+	k := 0
+	for t := 0; t < len(c.buckets); t += tablen {
+		for i := t; i < t + tablen; i++ {
+			for j := 0; j < blen; j++ {
+				T.Set(uint64(c.buckets[i].vals[j]), uint64(i - t), uint64(j))
+			}
+		}
+		TabMat[k] = T
+		k += 1
+		T = MatrixNew(uint64(tablen), uint64(blen))
 	}
 
+	// run CuckooPIR for Tables[]
+	N 	:= uint64(tablen * blen)
+	d 	:= uint64(8)
+	pir := CuckooPIR{}
+	p 	:= Params{1<<10,6.4,uint64(tablen),blen,32,1<<8}
+
+	var Tables [nhash]*Database
+	var wg sync.WaitGroup
+	wg.Add(nhash)
+	for i := 0; i < nhash; i++ {
+		Tables[i] = MakeDBFromMat(N, d, &p, TabMat[i])
+		// Tables[i].Data.Print()
+		go RunPIR(&pir, Tables[i], p, rows, &wg)
+	}
+	wg.Wait()
+	fmt.Println("Done")
+}
+
+func TestHash(t *testing.T){
+    // seed 		:= []byte("my-random-seed")
+    input 		:= []byte("Hello, World!")
+    outputSize 	:= 4
+
+	seedSize := 16 // 你需要的 seed 长度
+	rand.Seed(time.Now().UnixNano())
+
+	seed := make([]byte, seedSize)
+	for i := range seed {
+		seed[i] = byte(rand.Intn(256))
+	}
+
+    hash, err := FNV1a(seed, input, outputSize)
+    if err != nil {
+        fmt.Println("Error:", err)
+        return
+    }
+    fmt.Printf("FNV: %x\n", hash)
+	fmt.Printf("SHA256: %x\n", sha256mac(seed, input, outputSize))
 }

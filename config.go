@@ -36,7 +36,7 @@ const (
 
 // Key must be an integer-type.
 type Key uint8
-// type Key uint32
+// type Key []byte
 
 // Value can be anything, replace this to match your needs (not using unsafe.Pointer to avoid the overhead to store additional pointer or interface{} which comes with a worse overhead).
 type Value uint8

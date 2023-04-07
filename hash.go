@@ -16,6 +16,15 @@
 package cuckoopir
 
 // Hash is the internal hash type. Any change in its definition will require overall changes in this file.
+
+import (
+    "fmt"
+	"crypto/hmac"
+	"crypto/sha256"
+    "hash/fnv"
+    "io"
+)
+
 type hash uint32
 
 const hashBits = 32 // # of bits in hash type, at most unsafe.Sizeof(Key)*8.
@@ -72,4 +81,32 @@ func mem_32(k uint32, seed uint32) uint32 {
 	h ^= (k >> 24 & 0xff) * mem_c1
 
 	return h
+}
+
+func FNV1a(seed []byte, input []byte, outputSize int) ([]byte, error) {
+    if outputSize < 1 {
+        return nil, fmt.Errorf("outputSize must be greater than 0")
+    }
+
+    hasher := fnv.New64a()
+    _, err := io.WriteString(hasher, string(seed))
+    if err != nil {
+        return nil, err
+    }
+    hasher.Write(input)
+    hash := hasher.Sum(nil)
+
+    // Truncate or extend hash to desired output size
+    result := make([]byte, outputSize)
+    for i := 0; i < outputSize; i++ {
+        result[i] = hash[i%len(hash)]
+    }
+    return result, nil
+}
+
+func sha256mac(seed []byte, input []byte, outputSize int) []byte {
+	mac := hmac.New(sha256.New, seed)
+	mac.Write(input)
+	hash := mac.Sum(nil)
+	return hash[:outputSize]
 }
