@@ -109,7 +109,8 @@ func TestCuckoo(t *testing.T) {
 	}
 }
 
-func TestCuckooPIR(t *testing.T){
+// cuckooPIR for both key and value of uint8
+func TestCuckooPIRUint8(t *testing.T){
 	fmt.Printf("Totally %v items by %v hash functions, %v items in a bucket, %v buckets.\n", len(gmap), nhash, blen, tablen * nhash)
 	// fmt.Println("Items to be inserted: ", gmap)
 	c := NewCuckoo(DefaultLogSize)
