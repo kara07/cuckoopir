@@ -16,7 +16,7 @@ import (
 const LOGQ = uint64(32)
 const SEC_PARAM = uint64(1 << 10)
 
-var rows = []uint64{1,2,3}
+var rows = []uint64{1}
 // var rows = []uint64{11,45,14,19,19,8,10}
 var ell uint64 = uint64(len(rows))
 
@@ -214,9 +214,9 @@ func TestCuckooPIRByte(t *testing.T){
 		k += 1
 	}
 
-	// for i := range TabMat {
-	// 	TabMat[i].Print()
-	// }
+	for i := range TabMat {
+		TabMat[i].Print()
+	}
 
 	// run CuckooPIR for Tables[]
 	N 	:= uint64(tablen * blen)
@@ -229,7 +229,7 @@ func TestCuckooPIRByte(t *testing.T){
 	wg.Add(nhash)
 	for i := 0; i < nhash; i++ {
 		Tables[i] = MakeDBFromMat(N, d, &p, TabMat[i])
-		// Tables[i].Data.Print()
+		Tables[i].Data.Print()
 		go RunPIR(&pir, Tables[i], p, rows, &wg)
 	}
 	wg.Wait()

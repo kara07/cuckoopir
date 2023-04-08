@@ -47,10 +47,9 @@ func (pi *CuckooPIR) Query(L []uint64, A *Matrix, p Params, info DBinfo) (*Matri
 	// col := i % DB.Data.Cols
 	// row := i / DB.Data.Cols
 	// add delta
+	fmt.Println("Q:", Q.Rows, "x", Q.Cols)
 	for i, j := range L {
-		index := uint64(j-1) * Q.Cols + uint64(i)
-		// Q.Data[index] += C.Elem(p.Delta())
-		Q.plusDelta(index, p.Delta())
+		Q.AddAt(p.Delta(), uint64(j-1), uint64(i))
 	}
 	// Qhat.Data[L[0]/p.T] += C.Elem(p.Delta())
 	// fmt.Printf("query type is %T\n", query)
@@ -58,7 +57,7 @@ func (pi *CuckooPIR) Query(L []uint64, A *Matrix, p Params, info DBinfo) (*Matri
 	// fmt.Println("query:", query)
 	// fmt.Println("imodp.M:", i%p.M)
 	// fmt.Println("query.Data[imodp.M]:", query.Data[i%p.M])
-	fmt.Println("Q:", Q.Rows, "x", Q.Cols)
+
 
 	return S, Q
 }

@@ -1,8 +1,5 @@
 package cuckoopir
 
-// #cgo CFLAGS: -O3 -march=native
-// #include "matrix_multiply.h"
-import "C"
 import (
 	"fmt"
 	_ "os"
@@ -14,23 +11,6 @@ import (
 )
 
 // Defines the interface for PIR with preprocessing schemes
-// type PIR interface {
-// 	Name() string
-
-// 	GetBW(info DBinfo, p Params)
-
-// 	Init(info DBinfo, p Params) State
-
-// 	Setup(DB *Database, shared State, p Params) (State, Msg)
-
-// 	Query(L []uint64, shared State, p Params, info DBinfo) (State, Msg)
-
-// 	Response(DB *Database, query Msg, server State, shared State, p Params) Msg
-
-// 	Extract(offline Msg, query Msg, answer Msg, shared State, client State, p Params, info DBinfo) Msg
-
-// 	Reset(DB *Database, p Params) // reset DB to its correct state, if modified during execution
-// }
 type PIR interface {
 	Name() string
 
@@ -114,7 +94,8 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64, wg *sync.WaitGroup) (
 				panic("Result Failure!")
 			}
 		}else{
-			V.Data[i] -= C.Elem(p.P)
+			// V.Data[i] -= C.Elem(p.P)
+			V.AddByIndex(-p.P, uint64(i))
 			if V.Data[i] != expectedRows.Data[i]{
 				fmt.Printf("Expected result: %d, %d\n",i, expectedRows.Data[i])
 				fmt.Printf("Actual result: %d, %d\n",i, V.Data[i])
@@ -125,9 +106,10 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64, wg *sync.WaitGroup) (
 			// 	fmt.Printf("Actual result: %d, %d\n",i, v)
 			// }
 		}
+		V.AddByIndex(p.P/2, uint64(i))
 	}
 	fmt.Println("Extracted: ")
-	// V.Print()
+	V.Print()
 	fmt.Println("Success!")
 	
 

@@ -110,10 +110,19 @@ func (a *Matrix) Add(val uint64) {
 
 func (a *Matrix) AddAt(val, i, j uint64) {
 	if (i >= a.Rows) || (j >= a.Cols) {
+		fmt.Printf("i: %v, j: %v, rows: %v, cols: %v\n", i, j, a.Rows, a.Cols)
 		panic("Out of bounds")
 	}
 	a.Set(a.Get(i, j) + val, i, j)
 }
+
+func (m *Matrix) AddByIndex(n uint64, index uint64) {
+	if (index >= uint64(len(m.Data))) {
+		panic("Out of bounds")
+	}
+	m.Data[index] += C.Elem(n)
+}
+
 
 func (a *Matrix) MatrixSub(b *Matrix) {
 	if (a.Cols != b.Cols) || (a.Rows != b.Rows) {
@@ -506,8 +515,4 @@ func (m *Matrix) PrintStart() {
                 }
                 fmt.Printf("\n")
         }
-}
-
-func (m *Matrix) plusDelta(index uint64, Delta uint64) {
-	m.Data[index] += C.Elem(Delta)
 }
