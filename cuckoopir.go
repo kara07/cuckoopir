@@ -1,8 +1,5 @@
 package cuckoopir
 
-// #cgo CFLAGS: -O3 -march=native
-// #include "matrix_multiply.h"
-import "C"
 import "fmt"
 
 type CuckooPIR struct{}
@@ -52,7 +49,8 @@ func (pi *CuckooPIR) Query(L []uint64, A *Matrix, p Params, info DBinfo) (*Matri
 	// add delta
 	for i, j := range L {
 		index := uint64(j-1) * Q.Cols + uint64(i)
-		Q.Data[index] += C.Elem(p.Delta())
+		// Q.Data[index] += C.Elem(p.Delta())
+		Q.plusDelta(index, p.Delta())
 	}
 	// Qhat.Data[L[0]/p.T] += C.Elem(p.Delta())
 	// fmt.Printf("query type is %T\n", query)

@@ -15,12 +15,20 @@
 
 package cuckoopir
 
+import "math"
+
+// number of items to be inserted. close enough to a power of 2, to test whether the LoadFactor is close to 1 or not.
+var n = int(1<<5)
+
+var (
+	logsize	= int(math.Ceil(math.Log2(float64(n))))
+	tablen	= (1 << (uint(DefaultLogSize)- bshift)) / nhash
+)
+
 // configurable variables (for tuning the algorithm)
 const (
-	bshift                = 3   // Number of items in a bucket is 1<<bshift.
-	// bshift                = 3   // Number of items in a bucket is 1<<bshift.
-	nhashshift            = 1   // Number of hash functions is 1<<nhashshift. (With SSE2, we can do 4 at once).
-	// nhashshift            = 2   // Number of hash functions is 1<<nhashshift. (With SSE2, we can do 4 at once).
+	bshift                = 2   // Number of entries in a bucket is 1<<bshift.
+	nhashshift            = 1   // Number of hash functions is 1<<nhashshift.
 	shrinkFactor          = 0   // A shrink will be triggered when the load factor goes below 2^(-shrinkFactor). Setting this to 0 will disable shrinking and avoid potential new allocations.
 	rehashThreshold       = 1 // If the load factor is below rehashThreshold, Insert will try to rehash everything before actually growing.
 	randomWalkCoefficient = 2   // A multiplicative coefficient best determined by benchmarks. The optimal value depends on bshift and nhashshift.
@@ -34,10 +42,13 @@ const (
 	DefaultLogSize = 3 + bshift	// minimum number of buckets
 )
 
-// Key must be an integer-type.
-type Key uint8
-// type Key []byte
+const (
+	keySize = 8 // size of a key in bytes
+	valSize = 8 // size of a value in bytes
+)
 
-// Value can be anything, replace this to match your needs (not using unsafe.Pointer to avoid the overhead to store additional pointer or interface{} which comes with a worse overhead).
-type Value uint8
-// type Value []byte
+// type Key uint8
+type Key []byte
+
+// type Value uint8
+type Value []byte

@@ -23,11 +23,17 @@ import (
 	"crypto/sha256"
     "hash/fnv"
     "io"
+	"bytes"
+	"encoding/binary"
 )
 
 type hash uint32
+// type hash []byte
 
-const hashBits = 32 // # of bits in hash type, at most unsafe.Sizeof(Key)*8.
+
+const hashBits = 32 // # of bytes in hash type, at most unsafe.Sizeof(Key)*8.
+// const hashBytes = hashBits / 8 // # of bytes in hash type, at most unsafe.Sizeof(Key)*8.
+// const seedSize = 8
 
 const (
 	murmur3_c1_32 uint32 = 0xcc9e2d51
@@ -83,7 +89,7 @@ func mem_32(k uint32, seed uint32) uint32 {
 	return h
 }
 
-func FNV1a(seed []byte, input []byte, outputSize int) ([]byte, error) {
+func FNV1a(input []byte, seed []byte, outputSize int) ([]byte, error) {
     if outputSize < 1 {
         return nil, fmt.Errorf("outputSize must be greater than 0")
     }
@@ -104,9 +110,14 @@ func FNV1a(seed []byte, input []byte, outputSize int) ([]byte, error) {
     return result, nil
 }
 
-func sha256mac(seed []byte, input []byte, outputSize int) []byte {
+func sha256mac(input []byte, seed []byte) uint32 {
 	mac := hmac.New(sha256.New, seed)
 	mac.Write(input)
 	hash := mac.Sum(nil)
-	return hash[:outputSize]
+
+	truncated := hash[:4]
+
+	var result uint32
+	binary.Read(bytes.NewReader(truncated), binary.BigEndian, &result)
+	return result
 }

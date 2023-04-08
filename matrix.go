@@ -507,3 +507,7 @@ func (m *Matrix) PrintStart() {
                 fmt.Printf("\n")
         }
 }
+
+func (m *Matrix) plusDelta(index uint64, Delta uint64) {
+	m.Data[index] += C.Elem(Delta)
+}

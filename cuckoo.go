@@ -23,6 +23,7 @@ import (
 	"math/rand"
 	"runtime"
 	"fmt"
+	"bytes"
 )
 
 const (
@@ -60,7 +61,7 @@ type Cuckoo struct {
 	eitem     bool  // evacuated leftover item,
 	ekey      Key   // ...and its key.
 	eval      Value
-	seed      [nhash]hash // seed for hash functions.
+	seed      [nhash][]byte // seed for hash functions.
 }
 
 var zero Value
@@ -109,8 +110,12 @@ func NewCuckoo(logsize int) *Cuckoo {
 }
 
 func (c *Cuckoo) reseed() {
-	for i := range &c.seed {
-		c.seed[i] = hash(rand.Uint32())
+	seedSize := 8	//change this for seedsize
+	for i := range c.seed {
+		c.seed[i] = make([]byte, seedSize)
+		for j := range c.seed[i] {
+			c.seed[i][j] = byte(rand.Intn(256))
+		}
 	}
 }
 
@@ -120,20 +125,16 @@ func (c *Cuckoo) Len() int {
 }
 
 // default hash function
-func defaultHash(k Key, seed hash) hash {
-	return hash(xx_32(uint32(k), uint32(seed)))
-}
+func defaultHash(k Key, seed []byte) hash {
+	return hash(sha256mac(k, seed))
+}	
 
 func (c *Cuckoo) dohash(key Key, h *[nhash]hash) {
 	mask := hash(tablen - 1)
-	// mask := hash((1 << uint(c.logsize)) - 1)//backing
-	// fmt.Println("mask in dohash:", mask)
 
 	for i := range h {
 		hashing := defaultHash(key, c.seed[i])
-		// fmt.Printf("hashing in dohash: %v, mask is: %v\n", hashing, mask)
 		h[i] = hashing & mask + hash(i * tablen)
-		// fmt.Printf("h[%v] in dohash: %v\n", i, h[i])
 	}
 
 	return
@@ -152,7 +153,7 @@ func (c *Cuckoo) shuffle(h *[nhash]hash, r int64) {
 // Search tries to retrieve the value associated with the given key.
 // If no such item is found, ok is set to false.
 func (c *Cuckoo) Search(k Key) (v Value, ok bool) {
-	if k == 0 {
+	if isAllZeros(k) {
 		if c.zeroIsSet == false {
 			return
 		}
@@ -167,14 +168,14 @@ func (c *Cuckoo) Search(k Key) (v Value, ok bool) {
 	for _, hval := range &h {
 		b := &c.buckets[int(hval)]
 		for i, key := range &b.keys {
-			if k == key {
+			if bytes.Equal(k, key) {
 				return b.vals[i], true
 			}
 		}
 	}
 
 	for i, key := range c.stash.keys {
-		if key == k {
+		if bytes.Equal(k, key) {
 			return c.stash.vals[i], true
 		}
 	}
@@ -199,7 +200,7 @@ func (c *Cuckoo) Delete(k Key) {
 }
 
 func (c *Cuckoo) tryDelete(k Key) bool {
-	if k == 0 {
+	if isAllZeros(k) {
 		c.zeroIsSet = false
 		c.zeroValue = zero
 		c.nentries--
@@ -211,9 +212,12 @@ func (c *Cuckoo) tryDelete(k Key) bool {
 	for _, hval := range &h {
 		b := &c.buckets[int(hval)]
 		for i, key := range &b.keys {
-			if k == key {
+			if bytes.Equal(k, key) {
 				c.nentries--
-				b.keys[i] = 0
+				// b.keys[i] = 0
+				for j := range b.keys[i] {
+					b.keys[i][j] = 0
+				}
 				b.vals[i] = zero
 				return true
 			}
@@ -221,8 +225,11 @@ func (c *Cuckoo) tryDelete(k Key) bool {
 	}
 
 	for i, key := range c.stash.keys {
-		if k == key {
-			c.stash.keys[i] = 0
+		if bytes.Equal(k, key) {
+			// c.stash.keys[i] = 0
+			for j := range c.stash.keys[i] {
+				c.stash.keys[i][j] = 0
+			}
 			c.stash.vals[i] = zero
 			c.nentries--
 			return true
@@ -235,7 +242,7 @@ func (c *Cuckoo) tryDelete(k Key) bool {
 // Insert adds given key/value item into the hash map.
 // If an item with key k already exists, it will be replaced.
 func (c *Cuckoo) Insert(k Key, v Value) {
-	if k == 0 {
+	if isAllZeros(k) {
 		c.zeroIsSet = true
 		c.zeroValue = v
 		c.nentries++
@@ -299,13 +306,13 @@ func (c *Cuckoo) tryUpdate(k Key, v Value, h *[nhash]hash) (updated bool, freeSl
 	for _, bi := range h {			//bi := hash(uint32)
 		b := &c.buckets[int(bi)]	//b := address of c.buckets[bi] i.e., bucket number bi 
 		for i, key := range &b.keys {
-			if k == key {
+			if bytes.Equal(k, key) {
 				b.vals[i] = v
 				updated = true
 				return
 			}
 
-			if freeSlot == false && key == 0 {
+			if freeSlot == false && isAllZeros(k) {
 				ibucket = int(bi)
 				index = i
 				freeSlot = true
@@ -314,7 +321,7 @@ func (c *Cuckoo) tryUpdate(k Key, v Value, h *[nhash]hash) (updated bool, freeSl
 	}
 
 	for i, key := range c.stash.keys {
-		if k == key {
+		if bytes.Equal(k, key) {
 			c.stash.vals[i] = v
 			updated = true
 			return
@@ -334,7 +341,7 @@ func (c *Cuckoo) addAt(k Key, v Value, ibucket int, index int) {
 // Similar to tryUpdate, but tryAdd assumes there is no item with key already.
 // tryAdd also omits the slot given by the parameter except, when ignore is set to true.
 func (c *Cuckoo) tryAdd(k Key, v Value, h *[nhash]hash, ignore bool, except hash) (added bool) {
-	if k == 0 {
+	if isAllZeros(k) {
 		c.zeroIsSet = true
 		c.zeroValue = v
 		return
@@ -349,7 +356,7 @@ func (c *Cuckoo) tryAdd(k Key, v Value, h *[nhash]hash, ignore bool, except hash
 		b := &c.buckets[bi]
 
 		for i, key := range &b.keys {
-			if key == 0 {
+			if isAllZeros(key) {
 				b.keys[i] = k
 				b.vals[i] = v
 
@@ -394,7 +401,7 @@ func (c *Cuckoo) tryGreedyAdd(k Key, v Value, h *[nhash]hash) (added bool) {
 
 	// try to insert into stash as a last resort
 	for i, key := range c.stash.keys {
-		if key == 0 {
+		if isAllZeros(key) {
 			c.stash.keys[i] = k
 			c.stash.vals[i] = v
 			return true
@@ -461,7 +468,7 @@ func (c *Cuckoo) tryGrow(δ int) (ok bool) {
 	for bi := range c.buckets {
 		b := c.buckets[bi]
 		for i, k := range &b.keys {
-			if k == 0 {
+			if isAllZeros(k) {
 				continue
 			}
 
@@ -492,20 +499,22 @@ func (c *Cuckoo) tryGrow(δ int) (ok bool) {
 // ForRange loops over all (key,value) pairs in the hash map and calls f for each.
 func (c *Cuckoo) ForRange(f func(Key, Value)) {
 	if c.zeroIsSet {
-		f(0, c.zeroValue)
+		zeroBytes := make([]byte, 4)
+		f(zeroBytes, c.zeroValue)
+		// f(0, c.zeroValue)
 	}
 
 	for bi := range c.buckets {
 		b := &c.buckets[bi]
 		for i, key := range &b.keys {
-			if key != 0 {
+			if !isAllZeros(key) {
 				f(key, b.vals[i])
 			}
 		}
 	}
 
 	for i, key := range c.stash.keys {
-		if key != 0 {
+		if !isAllZeros(key) {
 			f(key, c.stash.vals[i])
 		}
 	}
@@ -513,9 +522,23 @@ func (c *Cuckoo) ForRange(f func(Key, Value)) {
 
 func ShowTable(c *Cuckoo) {
 	fmt.Println("nentries:", c.Len())
-	fmt.Println("buckets:", c.buckets)
-	fmt.Println("stash:", c.stash)
-	fmt.Println("seed:", c.seed)
+	fmt.Println("buckets:")
+	for i := range c.buckets {
+		fmt.Printf("bucket %d:\n", i)
+		for j := 0; j < blen; j++ {
+			fmt.Printf("key %d: %x ", j, c.buckets[i].keys[j])
+			fmt.Printf("value %d: %x\n", j, c.buckets[i].vals[j])
+		}
+	}
+	fmt.Println("stash:")
+	for j := 0; j < stashSize; j++ {
+		fmt.Printf("key %d: %x ", j, c.stash.keys[j])
+		fmt.Printf("value %d: %x\n", j, c.stash.vals[j])
+	}
+	fmt.Println("seeds:")
+	for i, k := range c.seed {
+		fmt.Printf("seed %d: %x\n", i, k)
+	}
 }
 
 //merge values
@@ -525,10 +548,19 @@ func MergeValues(c *Cuckoo){
 	for bi := range c.buckets {
 		b := &c.buckets[bi]
 		for i, key := range &b.keys {
-			if key != 0 {
+			if !isAllZeros(key) {
 				ValueMatrix = append(ValueMatrix, b.vals[i])
 			}
 		}
 	}
+}
+
+func isAllZeros(slice []byte) bool {
+	for _, v := range slice {
+		if v != 0 {
+			return false
+		}
+	}
+	return true
 }
 
