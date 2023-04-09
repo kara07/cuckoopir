@@ -241,18 +241,17 @@ func (c *Cuckoo) tryDelete(k Key) bool {
 
 // Insert adds given key/value item into the hash map.
 // If an item with key k already exists, it will be replaced.
-func (c *Cuckoo) Insert(k Key, v Value) {
+func (c *Cuckoo) Insert(k Key, v Value) bool {
 	if isAllZeros(k) {
 		c.zeroIsSet = true
 		c.zeroValue = v
 		c.nentries++
-		return
+		return true
 	}
 
 	for {
 		if c.tryInsert(k, v) {
-			return
-			// runtime.GC()
+			return true
 		}
 
 		// i0 := 1
@@ -564,3 +563,11 @@ func isAllZeros(slice []byte) bool {
 	return true
 }
 
+func (s *stash) isFull() bool {
+	for _, key := range s.keys {
+		if key == nil {
+			return false
+		}
+	}
+	return true
+}

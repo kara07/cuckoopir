@@ -16,8 +16,8 @@ import (
 const LOGQ = uint64(32)
 const SEC_PARAM = uint64(1 << 10)
 
-var rows = []uint64{1}
-// var rows = []uint64{11,45,14,19,19,8,10}
+// var rows = []uint64{1}
+var rows = []uint64{11,4,5,14,19,19,8,10}
 var ell uint64 = uint64(len(rows))
 
 
