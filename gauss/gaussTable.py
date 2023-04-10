@@ -11,11 +11,11 @@ import matplotlib.pyplot as plt
 
 # def gaussian_function(x, sigma=6.4):
 #     return np.exp(-x**2 / (2 * sigma**2))
-def gaussian_function(x, sigma=0.8):
+def gaussian_function(x, sigma=6.4):
     return np.exp(-x**2 / (2 * sigma**2))
 # print(np.exp(-3**2 / (2 * 3**2)))
 
-x1 = np.arange(0, 128)
+x1 = np.arange(0, 256)
 y1 = gaussian_function(x1)
 str_list = [str(x) for x in y1]
 comma_separated_string = ', '.join(str_list)
