@@ -7,7 +7,7 @@ import (
 
 func TestGauss(t *testing.T) {
 	buckets := make([]int, 256)
-	for i := 0; i < 1000000; i++ {
+	for i := 0; i < 100000; i++ {
 		buckets[GaussSample()+128] += 1
 	}
 

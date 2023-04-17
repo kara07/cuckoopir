@@ -109,7 +109,7 @@ func RunPIR(pi PIR, DB *Database, p Params, rows []uint64, wg *sync.WaitGroup) (
 		V.AddByIndex(p.P/2, uint64(i))
 	}
 	fmt.Println("Extracted: ")
-	V.Print()
+	// V.Print()
 	fmt.Println("Success!")
 	
 

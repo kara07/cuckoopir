@@ -37,7 +37,7 @@ func (pi *CuckooPIR) Setup(DB *Database, A *Matrix, p Params) *Matrix {
 func (pi *CuckooPIR) Query(L []uint64, A *Matrix, p Params, info DBinfo) (*Matrix, *Matrix) {
 	fmt.Println("A:", A.Rows, "x", A.Cols)
 
-	S := MatrixRand(p.N, uint64(len(L)), 1, 0)
+	S := MatrixRand(p.N, uint64(len(L)), p.Logq, 0)
 	// S.Print()
 	fmt.Println("S:", S.Rows, "x", S.Cols)
 
@@ -53,11 +53,7 @@ func (pi *CuckooPIR) Query(L []uint64, A *Matrix, p Params, info DBinfo) (*Matri
 	}
 	// Qhat.Data[L[0]/p.T] += C.Elem(p.Delta())
 	// fmt.Printf("query type is %T\n", query)
-
-	// fmt.Println("query:", query)
-	// fmt.Println("imodp.M:", i%p.M)
-	// fmt.Println("query.Data[imodp.M]:", query.Data[i%p.M])
-
+	fmt.Println("Q:", Q)
 
 	return S, Q
 }

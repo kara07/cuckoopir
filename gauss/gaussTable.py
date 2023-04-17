@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 # def gaussian_function(x, sigma=6.4):
 #     return np.exp(-x**2 / (2 * sigma**2))
-def gaussian_function(x, sigma=6.4):
+def gaussian_function(x, sigma=12.8):
     return np.exp(-x**2 / (2 * sigma**2))
 # print(np.exp(-3**2 / (2 * 3**2)))
 

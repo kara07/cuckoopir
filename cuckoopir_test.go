@@ -16,37 +16,37 @@ import (
 const LOGQ = uint64(32)
 const SEC_PARAM = uint64(1 << 10)
 
-// var rows = []uint64{1}
-var rows = []uint64{11,4,5,14,19,19,8,10}
+var rows = []uint64{1}
+// var rows = []uint64{11,4,5,14,19,19,8,10}
 var ell uint64 = uint64(len(rows))
 
 
-// func TestPIR(t *testing.T) {
-// 	// fmt.Println("Number of CPUs:", runtime.NumCPU())
+func TestPIR(t *testing.T) {
+	// fmt.Println("Number of CPUs:", runtime.NumCPU())
 
-//     // runtime.GOMAXPROCS(runtime.NumCPU())
+    // runtime.GOMAXPROCS(runtime.NumCPU())
 
-// 	N := uint64(1 << 24)
-// 	// Num        uint64 // number of DB entries.
-// 	d := uint64(8)
-// 	// Row_length uint64 // number of bits per DB entry.
-// 	pir := CuckooPIR{}
-// 	// p := pir.PickParams(N, d, SEC_PARAM, LOGQ)//return Params
-// 	// p := Params{1<<2,6.4,1<<2,1<<3,32,1<<8}//toy example
-// 	p := Params{1<<10,6.4,1<<12,1<<12,32,1<<8}//return Params
-// 	// p := Params{1<<10,6.4,1<<12,1<<12,32,1<<8}//return Params
+	N := uint64(1 << 24)
+	// Num        uint64 // number of DB entries.
+	d := uint64(8)
+	// Row_length uint64 // number of bits per DB entry.
+	pir := CuckooPIR{}
+	// p := pir.PickParams(N, d, SEC_PARAM, LOGQ)//return Params
+	// p := Params{1<<2,6.4,1<<2,1<<3,32,1<<8}//toy example
+	p := Params{993,12.8,1<<14,1<<14,32,1<<8}//return Params
+	// p := Params{1<<10,6.4,1<<12,1<<12,32,1<<8}//return Params
 
-// 	DB := MakeRandomDB(N, d, &p)//return *Database
+	DB := MakeRandomDB(N, d, &p)//return *Database
 
-// 	var wg sync.WaitGroup
-// 	wg.Add(1)
-// 	for i := 0; i < 1; i++ {
-// 		// go RunPIR(&pir, DB, p, []uint64{1,2,3},&wg)
-// 		go RunPIR(&pir, DB, p, rows, &wg)
-// 	}
-// 	wg.Wait()
-// 	fmt.Println("Done")
-// }
+	var wg sync.WaitGroup
+	wg.Add(1)
+	for i := 0; i < 1; i++ {
+		// go RunPIR(&pir, DB, p, []uint64{1,2,3},&wg)
+		go RunPIR(&pir, DB, p, rows, &wg)
+	}
+	wg.Wait()
+	fmt.Println("Done")
+}
 
 // func TestCuckoo(t *testing.T) {
 // 	fmt.Println(n)
