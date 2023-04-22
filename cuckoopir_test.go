@@ -33,7 +33,7 @@ func TestPIR(t *testing.T) {
 	pir := CuckooPIR{}
 	// p := pir.PickParams(N, d, SEC_PARAM, LOGQ)//return Params
 	// p := Params{1<<2,6.4,1<<2,1<<3,32,1<<8}//toy example
-	p := Params{993,12.8,1<<14,1<<14,32,1<<8}//return Params
+	p := Params{993,12.8,1<<13,1<<13,32,1<<8}//return Params
 	// p := Params{1<<10,6.4,1<<12,1<<12,32,1<<8}//return Params
 
 	DB := MakeRandomDB(N, d, &p)//return *Database

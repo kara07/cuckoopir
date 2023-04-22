@@ -53,7 +53,7 @@ func (pi *CuckooPIR) Query(L []uint64, A *Matrix, p Params, info DBinfo) (*Matri
 	}
 	// Qhat.Data[L[0]/p.T] += C.Elem(p.Delta())
 	// fmt.Printf("query type is %T\n", query)
-	fmt.Println("Q:", Q)
+	// fmt.Println("Q:", Q)
 
 	return S, Q
 }
